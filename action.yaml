@@ -61,7 +61,7 @@ runs:
 
     - name: Helm | Push
       shell: bash
-      run: ls ${{ inputs.name }}-*.tgz | xargs -i% helm push % 'oci://${{ inputs.registry }}/${{ inputs.repository }}'
+      run: ls ${{ inputs.name }}-*.tgz | xargs -I% helm push % 'oci://${{ inputs.registry }}/${{ inputs.repository }}'
       env:
         HELM_EXPERIMENTAL_OCI: '1'
 
