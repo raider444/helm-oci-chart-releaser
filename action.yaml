@@ -12,7 +12,7 @@ inputs:
     required: true
     description: Chart repository name
   tag:
-    required: true
+    required: false
     description: Chart version
   app_version:
     required: false
@@ -55,13 +55,21 @@ runs:
 
     - name: Helm | Package
       shell: bash
-      run: helm package '${{ inputs.path == null && format('{0}/{1}', 'charts', inputs.name) || inputs.path }}' --version '${{ inputs.tag }}' ${{ inputs.app_version != null && format('--app-version {0}', inputs.app_version) || '' }}
+      run: |
+        if '${{ inputs.tag }}'; then
+            helm package '${{ inputs.path == null && format('{0}/{1}', 'charts', inputs.name) || inputs.path }}' --version '${{ inputs.tag }}' ${{ inputs.app_version != null && format('--app-version {0}', inputs.app_version) || '' }}
+        else
+            export chart_archive_path=$(helm package '${{ inputs.path == null && format('{0}/{1}', 'charts', inputs.name) || inputs.path }}' ${{ inputs.app_version != null && format('--app-version {0}', inputs.app_version) || '' }} | awk '{print $8}')
       env:
         HELM_EXPERIMENTAL_OCI: '1'
 
     - name: Helm | Push
       shell: bash
-      run: helm push '${{ inputs.name }}-${{ inputs.tag }}.tgz' 'oci://${{ inputs.registry }}/${{ inputs.repository }}'
+      run: |
+        if '${{ inputs.tag }}'; then
+            helm push '${{ inputs.name }}-${{ inputs.tag }}.tgz' 'oci://${{ inputs.registry }}/${{ inputs.repository }}'
+        else
+            helm push ${chart_archive_path} 'oci://${{ inputs.registry }}/${{ inputs.repository }}'
       env:
         HELM_EXPERIMENTAL_OCI: '1'
 
