@@ -54,8 +54,8 @@ inputs:
     required: true
     description: Chart repository name
   tag:
-    required: true
-    description: Chart version
+    required: false
+    description: Chart version (Default: gets version from Chart.yaml)
   path:
     required: false
     description: Chart path (Default 'charts/{name}')
