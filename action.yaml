@@ -53,23 +53,15 @@ runs:
       env:
         HELM_EXPERIMENTAL_OCI: '1'
 
-    - name: Helm | Package (with tag)
-      if: inputs.tag != ''
+    - name: Helm | Package
       shell: bash
-      run: export chart_archive_path=$(helm package '${{ inputs.path == null && format('{0}/{1}', 'charts', inputs.name) || inputs.path }}' --version '${{ inputs.tag }}' ${{ inputs.app_version != null && format('--app-version {0}', inputs.app_version) || '' }})
-      env:
-        HELM_EXPERIMENTAL_OCI: '1'
-
-    - name: Helm | Package (without tag)
-      if: inputs.tag == ''
-      shell: bash
-      run: export chart_archive_path=$(helm package '${{ inputs.path == null && format('{0}/{1}', 'charts', inputs.name) || inputs.path }}' ${{ inputs.app_version != null && format('--app-version {0}', inputs.app_version) || '' }})
+      run: helm package '${{ inputs.path == null && format('{0}/{1}', 'charts', inputs.name) || inputs.path }}' --version '${{ inputs.tag }}' ${{ inputs.app_version != null && format('--app-version {0}', inputs.app_version) || '' }}
       env:
         HELM_EXPERIMENTAL_OCI: '1'
 
     - name: Helm | Push
       shell: bash
-      run: helm push ${chart_archive_path} 'oci://${{ inputs.registry }}/${{ inputs.repository }}'
+      run: ls '${{ inputs.name }}-*.tgz' | xargs -i% helm push % 'oci://${{ inputs.registry }}/${{ inputs.repository }}'
       env:
         HELM_EXPERIMENTAL_OCI: '1'
 
