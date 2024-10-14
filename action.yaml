@@ -69,11 +69,7 @@ runs:
 
     - name: Helm | Push
       shell: bash
-      run: |
-        if '${{ inputs.tag }}'; then
-            helm push '${{ inputs.name }}-${{ inputs.tag }}.tgz' 'oci://${{ inputs.registry }}/${{ inputs.repository }}'
-        else
-            helm push ${chart_archive_path} 'oci://${{ inputs.registry }}/${{ inputs.repository }}'
+      run: helm push ${chart_archive_path} 'oci://${{ inputs.registry }}/${{ inputs.repository }}'
       env:
         HELM_EXPERIMENTAL_OCI: '1'
 
